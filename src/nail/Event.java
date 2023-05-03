@@ -1,6 +1,6 @@
 package nail;
 
-import java.util.Random;
+import java.util.*;
 
 public class Event implements RandomEvents {
     private final Random random = new Random();
@@ -69,36 +69,27 @@ public class Event implements RandomEvents {
 
     @Override
     public void highwayRobbers(Merchant merchant) {
+        int stolenGoodsCount = 0;
         System.out.println("Торговцу на пути встретились разбойники!");
-        if (merchant.getMoney() >= 10 && merchant.getGoodsList().isEmpty()) {
+        if (merchant.getMoney() >= 10) {
             System.out.println("Торговец решил откупиться у разбойников деньгами. Он заплатил им 10 монет");
+            System.out.println("У торговца осталось денег: " + merchant.getMoney());
             merchant.setMoney(merchant.getMoney() - 10);
-        }
-        int goodsCounter = 0;
-        int bestGoods = 0;
-        int secondBestGoods = 0;
-        if (merchant.getMoney() < 10) {
-            while (goodsCounter <= 5) {
-                for (int i = 0; i < merchant.getGoodsList().size(); i++) {
-                    if (merchant.getGoodsList().get(i).getProductQuality().getValue() > 1) {
-                        merchant.getGoodsList().remove(i);
-                        bestGoods++;
-                        goodsCounter++;
-                    }
-                    if (merchant.getGoodsList().get(i).getProductQuality().getValue() > 0.6
-                            && merchant.getGoodsList().get(i).getProductQuality().getValue() == 0.6) {
-                        merchant.getGoodsList().remove(i);
-                        secondBestGoods++;
-                    }
-                }
+        } else if (merchant.getMoney() < 10) {
+            System.out.println("У торговца не осталось денег для выплаты разбойникам, они заберут у него товары.");
+            int goodsToRemove = Math.min(5, merchant.getGoodsList().size());
+            List<Goods> sortedGoods = new ArrayList<>(merchant.getGoodsList());
+            Collections.sort(sortedGoods, Comparator.comparingDouble(g -> -g.getProductQuality().getValue()));
+            List<Goods> goodsToRemoveList = sortedGoods.subList(0, goodsToRemove);
+
+            int totalPrice = 0;
+            for (Goods goods : goodsToRemoveList) {
+                totalPrice += goods.getPrice();
+                merchant.getGoodsList().remove(goods);
             }
-            if (bestGoods > 0) {
-                System.out.println("Разбойники забрали самый лучший товар у торговца в количестве - " + bestGoods + " продуктов!");
-            } else {
-                System.out.println("Разбойники украли не самого лучшего товара в количестве - " + secondBestGoods + " штук");
-            }
-            System.out.println("Осталось товаров у торговца - " + merchant.getGoodsList().size());
+            System.out.println("У торговца забрали: " + goodsToRemove + " товаров.");
         }
+        System.out.println("Осталось товаров у торговца - " + merchant.getGoodsList().size());
     }
 
     @Override
@@ -111,7 +102,7 @@ public class Event implements RandomEvents {
         if (choice == 1) {
             if (merchant.getCarryingCapacity() < 100) {
                 System.out.println("Он решил, что стоит потратить часть денег на товары в трактире.");
-                while (merchant.getCarryingCapacity() <= 100){
+                while (merchant.getCarryingCapacity() <= 100) {
                     merchant.getGoodsList().add(new Goods().getRandomGood());
                 }
             } else {
@@ -119,7 +110,7 @@ public class Event implements RandomEvents {
             }
         }
         if (choice == 2) {
-
+            
         }
     }
 

@@ -75,7 +75,7 @@ public class Merchant {
     }
 
     public Double getMoney() {
-        return money;
+        return Math.round((money) * 100.0) / 100.0;
     }
 
 

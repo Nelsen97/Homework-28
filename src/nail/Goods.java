@@ -1,10 +1,11 @@
 package nail;
 
+import java.util.Comparator;
 import java.util.Random;
 
 import static nail.ProductQuality.*;
 
-public class Goods {
+public class Goods implements Comparator<Goods> {
     private TypeOfProduct typeOfProduct;
     private ProductQuality productQuality;
     private Double price;
@@ -138,5 +139,10 @@ public class Goods {
                 ", Качество = " + productQuality.getValue() +
                 ", Цена = " + price +
                 ", Вес = " + weight + "\n";
+    }
+
+    @Override
+    public int compare(Goods g1, Goods g2) {
+        return Double.compare(g2.getProductQuality().getValue(), g1.getProductQuality().getValue());
     }
 }

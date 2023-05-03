@@ -13,43 +13,46 @@ public class StartingConditions {
     private List<City> cities = new ArrayList<>();
     private final Random random = new Random();
     Event event = new Event();
+    private List<Method> functions = Arrays.asList(
+            event.getClass().getMethod("casualDay"),
+            event.getClass().getMethod("rain", Goods.class, Merchant.class),
+            event.getClass().getMethod("smoothRoad", Merchant.class),
+            event.getClass().getMethod("brokenWheel"),
+            event.getClass().getMethod("metALocal", Merchant.class),
+            event.getClass().getMethod("highwayRobbers", Merchant.class),
+            event.getClass().getMethod("roadSideInn", Merchant.class),
+            event.getClass().getMethod("productIsDamaged", Goods.class)
+    );
 
-    public StartingConditions() {
+    public StartingConditions() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         initiateCitiesList();
         City.getCityInformation(cities);
         merchant.merchantBuysGoods(cities.get(0));
 
-        int dayCounter = 0;
-
         City chosenCity = cities.get(chooseRandomCity());
         System.out.println("\n\nТорговец решил поехать в город: " + chosenCity.getName()
                 + ". Расстояние до города: " + chosenCity.getDistance());
+        motionSimulation(chosenCity);
+    }
+
+    public void motionSimulation(City chosenCity) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        int dayCounter = 0;
 
         while (merchant.getDistance() < chosenCity.getDistance()) {
             dayCounter++;
             System.out.println("День " + dayCounter);
-            int value = random.nextInt(merchant.getGoodsList().size()) + 1;
-            event.rain(merchant.getGoodsList().get(value - 1), merchant);
+//            initiateEvent(chosenCity);
             merchantStartGoing(chosenCity);
-            if (merchant.getDistance() > chosenCity.getDistance()) {
+            event.highwayRobbers(merchant);
+            int counter = 0;
+            if (merchant.getDistance() >= chosenCity.getDistance()) {
                 merchant.setDistance(0);
                 break;
             }
         }
     }
 
-    public void initiateEvent() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        List<Method> functions = Arrays.asList(
-                event.getClass().getMethod("casualDay"),
-                event.getClass().getMethod("rain", Goods.class, Merchant.class),
-                event.getClass().getMethod("smoothRoad", Merchant.class),
-                event.getClass().getMethod("brokenWheel"),
-                event.getClass().getMethod("metALocal", Merchant.class),
-                event.getClass().getMethod("highwayRobbers", Merchant.class),
-                event.getClass().getMethod("roadSideInn", Merchant.class),
-                event.getClass().getMethod("productIsDamaged", Goods.class)
-        );
-
+    public void initiateEvent(City chosenCity) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         int randomIndex = random.nextInt(functions.size());
         Method randomFunction = functions.get(randomIndex);
         Object[] arguments = null;
@@ -65,6 +68,12 @@ public class StartingConditions {
             }
         }
         randomFunction.invoke(event, arguments);
+        if (randomFunction.invoke(event, arguments) != event.getClass().getMethod("brokenWheel")) {
+            merchantStartGoing(chosenCity);
+        } else {
+            randomFunction = event.getClass().getMethod("brokenWheel");
+            randomFunction.invoke(event, null);
+        }
     }
 
     public void initiateCitiesList() {
@@ -103,7 +112,7 @@ public class StartingConditions {
         if (merchant.getDistance() >= city.getDistance()) {
             System.out.println("Торговец доехал до города " + city.getName());
         } else {
-            System.out.println("Торговец проехал на тележке: " + way + ". Осталось проехать еще: " + (city.getDistance() - way));
+            System.out.println("Торговец проехал: " + way + ". Осталось проехать еще: " + (city.getDistance() - way));
             merchant.setSpeed(random.nextInt(5) + 1);
         }
     }
