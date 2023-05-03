@@ -1,30 +1,30 @@
 package nail;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 public class StartingConditions {
     private Merchant merchant = new Merchant();
+    private Goods goods = new Goods();
     private List<City> cities = new ArrayList<>();
     private final Random random = new Random();
     Event event = new Event();
 
     public StartingConditions() {
-        cities.add(new City("Каракол"));
-        cities.add(new City("Ош"));
-        cities.add(new City("Бишкек"));
-        cities.add(new City("Талас"));
-        cities.add(new City("Нарын"));
-        System.out.println("Торговец начинает в городе Каракол. Стоимость товаров в городе: " + cities.get(0).getCostFactor());
+        initiateCitiesList();
         City.getCityInformation(cities);
-        System.out.println("Торговец закупил товары. Осталось денег = " + merchant.getMoney()
-                + " Осталось места в тележке = " + merchant.getCarryingCapacity());
         merchant.merchantBuysGoods(cities.get(0));
+
         int dayCounter = 0;
+
         City chosenCity = cities.get(chooseRandomCity());
         System.out.println("\n\nТорговец решил поехать в город: " + chosenCity.getName()
                 + ". Расстояние до города: " + chosenCity.getDistance());
+
         while (merchant.getDistance() < chosenCity.getDistance()) {
             dayCounter++;
             System.out.println("День " + dayCounter);
@@ -36,6 +36,45 @@ public class StartingConditions {
                 break;
             }
         }
+    }
+
+    public void initiateEvent() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        List<Method> functions = Arrays.asList(
+                event.getClass().getMethod("casualDay"),
+                event.getClass().getMethod("rain", Goods.class, Merchant.class),
+                event.getClass().getMethod("smoothRoad", Merchant.class),
+                event.getClass().getMethod("brokenWheel"),
+                event.getClass().getMethod("metALocal", Merchant.class),
+                event.getClass().getMethod("highwayRobbers", Merchant.class),
+                event.getClass().getMethod("roadSideInn", Merchant.class),
+                event.getClass().getMethod("productIsDamaged", Goods.class)
+        );
+
+        int randomIndex = random.nextInt(functions.size());
+        Method randomFunction = functions.get(randomIndex);
+        Object[] arguments = null;
+
+        if (randomFunction.getParameterCount() > 0) {
+            arguments = new Object[randomFunction.getParameterCount()];
+            for (int i = 0; i < arguments.length; i++) {
+                if (randomFunction.getParameterTypes()[i] == Goods.class) {
+                    arguments[i] = goods;
+                } else if (randomFunction.getParameterTypes()[i] == Merchant.class) {
+                    arguments[i] = merchant;
+                }
+            }
+        }
+        randomFunction.invoke(event, arguments);
+    }
+
+    public void initiateCitiesList() {
+        cities.add(new City("Каракол"));
+        cities.add(new City("Ош"));
+        cities.add(new City("Бишкек"));
+        cities.add(new City("Талас"));
+        cities.add(new City("Нарын"));
+        System.out.println("Торговец начинает в городе " + cities.get(0).getName()
+                + ". Стоимость товаров в городе: " + cities.get(0).getCostFactor());
     }
 
     public int chooseRandomCity() {

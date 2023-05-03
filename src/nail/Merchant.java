@@ -37,7 +37,8 @@ public class Merchant {
         for (int i = 0; i < 50; i++) {
             firstCitiesGoodsList.add(new Goods().getRandomGood(city));
         }
-        while (getMoney() > firstCitiesGoodsList.get(getLowestCostIndex(firstCitiesGoodsList)).getPrice() || getCarryingCapacity() > 0) {
+        while (getMoney() > firstCitiesGoodsList.get(getLowestCostIndex(firstCitiesGoodsList)).getPrice()
+                || getCarryingCapacity() > 0) {
             Goods product = new Goods().getRandomGood(city);
             goodsList.add(product);
             setMoney(getMoney() - product.getPriceOfProduct());
@@ -51,6 +52,8 @@ public class Merchant {
                 break;
             }
         }
+        System.out.println("Торговец закупил товары. Осталось денег = " + getMoney()
+                + " Осталось места в тележке = " + getCarryingCapacity());
     }
 
     public int getLowestCostIndex(List<Goods> goodsList) {

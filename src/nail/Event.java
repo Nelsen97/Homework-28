@@ -27,7 +27,7 @@ public class Event implements RandomEvents {
 
     @Override
     public void smoothRoad(Merchant merchant) {
-        System.out.println("Ровная дорога. Возможно увеличение скорости движения.");
+        System.out.println("Ровная дорога. Скорость движения торговца увеличилась!");
         if (merchant.getSpeed() < 5) {
             merchant.setSpeed(merchant.getSpeed() + 2);
             System.out.println("Скорость движения торговца стала = " + merchant.getSpeed());
@@ -36,6 +36,7 @@ public class Event implements RandomEvents {
             merchant.setSpeed(merchant.getSpeed() + 1);
         } else if (merchant.getSpeed() == 5) {
             System.out.println("Торговец теперь движется с максимально возможной скоростью!");
+            merchant.setSpeed(5);
         }
     }
 
