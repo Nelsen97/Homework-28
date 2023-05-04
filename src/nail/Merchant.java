@@ -34,11 +34,11 @@ public class Merchant {
                 i--;
                 soldGoods.add(getGoodsList().get(i));
                 getGoodsList().remove(i);
-                profit = profit + (getMoney() + (soldGoods.get(i).getPriceOfProduct() * city.getCostFactor()));
+                profit = profit + (soldGoods.get(i).getPriceOfProduct() * city.getCostFactor());
                 setMoney(getMoney() + (soldGoods.get(i).getPriceOfProduct() * city.getCostFactor()));
             }
         }
-        System.out.println("Торговец продал товар на сумму: " + profit);
+        System.out.printf("Торговец продал товар на сумму: %.2f\n", profit);
         return profit;
     }
 
@@ -51,7 +51,7 @@ public class Merchant {
                     + "по цене: " + getGoodsList().get(index).getPriceOfProduct());
             soldGoods.add(getGoodsList().get(index));
             getGoodsList().remove(index);
-            money = money + (getMoney() + soldGoods.get(i).getPriceOfProduct());
+            money = money + soldGoods.get(i).getPriceOfProduct();
             setMoney(getMoney() + soldGoods.get(i).getPriceOfProduct());
         }
         System.out.println("Торговец заработал: " + money + " золотых.");
@@ -67,7 +67,7 @@ public class Merchant {
                 || getCarryingCapacity() > 0) {
             Goods product = new Goods().getRandomGood(city);
             goodsList.add(product);
-            money = money + (getMoney() - product.getPriceOfProduct());
+            money = money + product.getPriceOfProduct();
             setMoney(getMoney() - product.getPriceOfProduct());
             setCarryingCapacity(getCarryingCapacity() - product.getWeight());
             if (getMoney() <= 0) {
@@ -79,7 +79,7 @@ public class Merchant {
                 break;
             }
         }
-        System.out.println("Торговец закупил товары" + ". Осталось денег = " + getMoney()
+        System.out.println("Торговец закупил товары на сумму: " + (Math.round((money) * 100) / 100) + ". Осталось денег = " + getMoney()
                 + " Осталось места в тележке = " + getCarryingCapacity());
         return money;
     }
@@ -129,9 +129,5 @@ public class Merchant {
 
     public List<Goods> getGoodsList() {
         return goodsList;
-    }
-
-    public void setGoodsList(List<Goods> goodsList) {
-        this.goodsList = goodsList;
     }
 }
