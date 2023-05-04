@@ -14,14 +14,14 @@ public class Event implements RandomEvents {
     }
 
     @Override
-    public void rain(Goods goods, Merchant merchant) {
+    public void rain(Merchant merchant) {
         System.out.println("Идет дождь. Скорость передвижения снижена на 2 лиги.");
         merchant.setSpeed(merchant.getSpeed() - 2);
         int chance = random.nextInt(3) + 1;
         if (chance == 3) {
-            System.out.print("\nИз-за дождя был поврежден товар: " + goods);
-            goods.setProductQuality(goods.changeQualityOfProduct(goods));
-            System.out.println("Теперь его качество стало:" + goods.getProductQuality().getDescription());
+            int index = random.nextInt(merchant.getGoodsList().size() - 1);
+            System.out.print("\nИз-за дождя был поврежден товар: " + merchant.getGoodsList().get(index).getTypeOfProduct().getName() + " .");
+            merchant.getGoodsList().get(index).setProductQuality(merchant.getGoodsList().get(index).changeQualityOfProduct(merchant.getGoodsList().get(index)));
         }
     }
 
@@ -47,7 +47,7 @@ public class Event implements RandomEvents {
 
     @Override
     public void metALocal(Merchant merchant) {
-        System.out.print("\nПо пути торговец встретил местного жителя. Благодаря этому вы срезали путь на ");
+        System.out.print("По пути торговец встретил местного жителя. Благодаря этому вы срезали путь на ");
         int chance = random.nextInt(4) + 1;
         if (chance == 1) {
             System.out.println("3 лиги.");
@@ -97,26 +97,39 @@ public class Event implements RandomEvents {
         int choice = random.nextInt(2) + 1;
         System.out.println("Торговец остановился у придорожного трактира и проведет там ночь. Стоимость ночлега 2 золотых");
         merchant.setMoney(merchant.getMoney() - 2);
-        TypeOfProduct typeOfProduct = TypeOfProduct.getRandomType();
-
+        System.out.println("Осталось денег у торговца: " + merchant.getMoney());
         if (choice == 1) {
-            if (merchant.getCarryingCapacity() < 100) {
+            if (merchant.getCarryingCapacity() > 0) {
                 System.out.println("Он решил, что стоит потратить часть денег на товары в трактире.");
-                while (merchant.getCarryingCapacity() <= 100) {
-                    merchant.getGoodsList().add(new Goods().getRandomGood());
+                while (merchant.getCarryingCapacity() >= 0) {
+                    if (merchant.getCarryingCapacity() < 0) {
+                        merchant.setCarryingCapacity(0);
+                        break;
+                    }
+                    Goods goods = new Goods().getRandomGood();
+                    merchant.getGoodsList().add(goods);
+                    merchant.setMoney(merchant.getMoney() - goods.getPriceOfProduct());
                 }
             } else {
-                System.out.println("Торговец мог бы купить товары в трактире, но его тележка переполнена (");
+                System.out.println("Торговец мог бы купить товары в трактире, но его тележка переполнена.");
             }
         }
         if (choice == 2) {
-            
+            if (!merchant.getGoodsList().isEmpty()) {
+                System.out.println("Торговец решил продать часть своих товаров в трактире.");
+                int quantity = random.nextInt(6) + 1;
+                merchant.merchantSalesHisGoods(quantity);
+            }
         }
     }
 
     @Override
-    public void productIsDamaged(Goods goods) {
-
+    public void productIsDamaged(Merchant merchant) {
+        int index = random.nextInt(merchant.getGoodsList().size() - 1);
+        System.out.println("Случайно испортился товар: " + merchant.getGoodsList().get(index).getTypeOfProduct()
+                + " . Его качество было: " + merchant.getGoodsList().get(index).getProductQuality());
+        merchant.getGoodsList().get(index).setProductQuality(merchant.getGoodsList().get(index).changeQualityOfProduct(merchant.getGoodsList().get(index)));
+        System.out.println(". Его качество стало: " + merchant.getGoodsList().get(index).getProductQuality());
     }
 }
 

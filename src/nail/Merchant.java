@@ -26,14 +26,40 @@ public class Merchant {
         distance = 0;
     }
 
-//    public List<Goods> merchantSalesHisGoods(int quantity) {
-//        for (int i = 0; i < quantity; i++) {
-//
-//        }
-//    }
+    public double merchantSalesHisGoodsInCity(City city) {
+        double profit = 0;
+        List<Goods> soldGoods = new ArrayList<>();
+        for (int i = 0; i < getGoodsList().size(); i++) {
+            if (i == 1) {
+                i--;
+                soldGoods.add(getGoodsList().get(i));
+                getGoodsList().remove(i);
+                profit = profit + (getMoney() + (soldGoods.get(i).getPriceOfProduct() * city.getCostFactor()));
+                setMoney(getMoney() + (soldGoods.get(i).getPriceOfProduct() * city.getCostFactor()));
+            }
+        }
+        System.out.println("Торговец продал товар на сумму: " + profit);
+        return profit;
+    }
 
-    public void merchantBuysGoods(City city) {
+    public void merchantSalesHisGoods(int quantity) {
+        List<Goods> soldGoods = new ArrayList<>();
+        double money = 0;
+        for (int i = 0; i < quantity; i++) {
+            int index = random.nextInt(getGoodsList().size() - 1);
+            System.out.println("Торговец решил продать товар " + getGoodsList().get(index).getTypeOfProduct()
+                    + "по цене: " + getGoodsList().get(index).getPriceOfProduct());
+            soldGoods.add(getGoodsList().get(index));
+            getGoodsList().remove(index);
+            money = money + (getMoney() + soldGoods.get(i).getPriceOfProduct());
+            setMoney(getMoney() + soldGoods.get(i).getPriceOfProduct());
+        }
+        System.out.println("Торговец заработал: " + money + " золотых.");
+    }
+
+    public double merchantBuysGoods(City city) {
         List<Goods> firstCitiesGoodsList = new ArrayList<>();
+        double money = 0;
         for (int i = 0; i < 50; i++) {
             firstCitiesGoodsList.add(new Goods().getRandomGood(city));
         }
@@ -41,6 +67,7 @@ public class Merchant {
                 || getCarryingCapacity() > 0) {
             Goods product = new Goods().getRandomGood(city);
             goodsList.add(product);
+            money = money + (getMoney() - product.getPriceOfProduct());
             setMoney(getMoney() - product.getPriceOfProduct());
             setCarryingCapacity(getCarryingCapacity() - product.getWeight());
             if (getMoney() <= 0) {
@@ -52,8 +79,9 @@ public class Merchant {
                 break;
             }
         }
-        System.out.println("Торговец закупил товары. Осталось денег = " + getMoney()
+        System.out.println("Торговец закупил товары" + ". Осталось денег = " + getMoney()
                 + " Осталось места в тележке = " + getCarryingCapacity());
+        return money;
     }
 
     public int getLowestCostIndex(List<Goods> goodsList) {
@@ -76,11 +104,6 @@ public class Merchant {
 
     public Double getMoney() {
         return Math.round((money) * 100.0) / 100.0;
-    }
-
-
-    public Double getStartMoney() {
-        return startMoney;
     }
 
     public void setMoney(Double money) {

@@ -42,4 +42,9 @@ public enum ProductQuality {
     public Double getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return  description;
+    }
 }
